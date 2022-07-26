@@ -79,14 +79,14 @@ void loop()
   //long temp = ThingSpeak.readLongField(1808792, 1, "RPKW7O2GQTV0CRG2");
   //Serial.println(temp);
   
-  delay(3000);
-  ShowSerialData();
+ ReadGSMRXData();
+
+ delay(5000);//waitting for reply, important! the time is base on the condition of internet 
  
   gprsSerial.println((char)26);//sending
-  delay(5000);//waitting for reply, important! the time is base on the condition of internet 
   gprsSerial.println();
  
-  ShowSerialData();
+  ReadGSMRXData();
  
   gprsSerial.println("AT+CIPSHUT");//close the connection
   delay(100);
@@ -99,3 +99,19 @@ void ShowSerialData()
   delay(5000); 
   
 }
+void ReadGSMRXData() {
+  //Available data is known to be in the RX buffer
+  //Read it and return via G_GSMRXData
+  //Application wide this is the only place we do Serial1.read()
+  unsigned long l_timer = millis();
+  while (millis()-l_timer<=2000) {
+    while (gprsSerial.available()) {
+      char l_char; //Always read a char, then append char to G_GSMRXData String
+      l_char = gprsSerial.read();
+      Serial.write(l_char);
+      l_timer = millis(); //reset qtr sec timer
+    }
+  }
+  delay(2000);
+  
+} 
